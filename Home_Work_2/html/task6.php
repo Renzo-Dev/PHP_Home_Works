@@ -1,29 +1,37 @@
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
-</head>
-<body>
-<h1><a href="index.php">MAIN PAGE</a></h1>
-<h2>
-    <div>Разработать страницу с переменными:</div>
-    <div>tag, background_color, color, width, height;</div>
-    <div>Значение в этих переменных — это значение соответствующего property тега, который описан в переменной tag;</div>
-    <div>Вывести тег, записанный в переменной tag со стилями, которые записаны в переменных.</div>
-</h2>
 <?php
-$background_color = "blue";
-$tag = "div";
-$color = "RED";
-$width = "300px";
-$height = "300px";
-$font_size = "35px";
+session_start();
 
-echo "<$tag style='background-color: $background_color; font-size: $font_size; color: $color; width: $width; height: $height;'>Hello</$tag>";
+// Проверка, установлена ли переменная session_id
+if (!isset($_SESSION['session_id'])) {
+    $_SESSION['session_id'] = 0; // Если не установлена, устанавливаем значение по умолчанию (0)
+}
+
+// Проверка значения переменной session_id
+if ($_SESSION['session_id'] == 1) {
+    // Если значение 0, показываем форму регистрации
+    ?>
+
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Форма регистрации</title>
+    </head>
+    <body>
+    <h1>Форма регистрации</h1>
+    <!-- Форма для ввода логина и пароля -->
+    <form action="task6.php" method="POST">
+        <label for="login">Логин:</label><br>
+        <input type="text" id="login" name="login"><br>
+        <label for="password">Пароль:</label><br>
+        <input type="password" id="password" name="password"><br><br>
+        <input type="submit" value="Войти">
+    </form>
+    </body>
+    </html>
+
+    <?php
+} else {
+    // Если значение 1, выводим сообщение
+    echo "Вы зарегистрированы, войдите";
+}
 ?>
-</body>
-</html>
