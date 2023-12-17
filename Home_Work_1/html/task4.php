@@ -7,11 +7,20 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
 </head>
-<body style="align-items: center;display: flex;flex-direction: column">
-<h2><a href="task1.php">Task 1/2</a></h2>
-<h2><a href="task3.php">Task 3</a></h2>
-<h2><a href="task4.php">Task 4</a></h2>
-<h2><a href="task5.php">Task 5</a></h2>
-<h2><a href="task6.php">Task 6</a></h2>
+<body>
+<h1><a href="index.php">MAIN PAGE</a></h1>
+<?php
+$a = 44;
+$b = 3;
+
+echo "До обмена: a = $a, b = $b<br>";
+
+$a = $a + $b;
+$b = $a - $b;
+$a = $a - $b;
+
+echo "После обмена: a = $a, b = $b";
+
+?>
 </body>
 </html>
