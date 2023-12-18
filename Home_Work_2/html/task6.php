@@ -1,37 +1,46 @@
 <?php
 session_start();
+//$_SESSION['session_id'] = 0;
 
-// Проверка, установлена ли переменная session_id
-if (!isset($_SESSION['session_id'])) {
-    $_SESSION['session_id'] = 0; // Если не установлена, устанавливаем значение по умолчанию (0)
-}
-
-// Проверка значения переменной session_id
-if ($_SESSION['session_id'] == 1) {
-    // Если значение 0, показываем форму регистрации
-    ?>
-
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>Форма регистрации</title>
-    </head>
-    <body>
-    <h1>Форма регистрации</h1>
-    <!-- Форма для ввода логина и пароля -->
-    <form action="task6.php" method="POST">
-        <label for="login">Логин:</label><br>
-        <input type="text" id="login" name="login"><br>
-        <label for="password">Пароль:</label><br>
-        <input type="password" id="password" name="password"><br><br>
-        <input type="submit" value="Войти">
-    </form>
-    </body>
-    </html>
-
-    <?php
+// Проверяем, есть ли переменная session_id
+if (isset($_SESSION['session_id'])) {
+    // Если session_id равен 0, показываем форму регистрации
+    if ($_SESSION['session_id'] == 0) {
+        echo "
+        <form action='task6.php' method='post'>
+            <h1>Регистрация</h1>
+            <p>Session ID: 0</p>
+            <input type='text' placeholder='Логин' name='login'>
+            <br>
+            <input type='password' placeholder='Пароль' name='password'>
+            <br>
+            <input type='submit' value='Зарегистрироваться'>
+        </form>";
+        $_SESSION['session_id'] = 1;
+    } elseif ($_SESSION['session_id'] == 1) {
+        // Если session_id равен 1, выводим сообщение об успешной регистрации
+        echo "
+        <h1>Вы уже зарегистрированы.</h1>
+        <p>Session ID: 1</p>
+        <br>
+        <a href='#'>Войти</a>
+        <p></p>";
+    } else {
+        // Для других значений session_id делаем что-то еще или выводим ошибку
+        echo "Некорректное значение session_id";
+    }
 } else {
-    // Если значение 1, выводим сообщение
-    echo "Вы зарегистрированы, войдите";
+    // Если session_id не установлена, показываем форму регистрации по умолчанию
+    echo "
+    <form action='task6.php' method='post'>
+        <h1>Регистрация</h1>
+        <p>Session ID не установлен</p>
+        <input type='text' placeholder='Логин' name='login'>
+        <br>
+        <input type='password' placeholder='Пароль' name='password'>
+        <br>
+        <input type='submit' value='Зарегистрироваться'>
+    </form>";
+    $_SESSION['session_id'] = 1;
 }
 ?>

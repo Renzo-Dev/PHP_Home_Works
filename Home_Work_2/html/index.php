@@ -14,5 +14,6 @@
 <h2><a href="task4.php">Task 4</a></h2>
 <h2><a href="task5.php">Task 5</a></h2>
 <h2><a href="task6.php">Task 6</a></h2>
+<h2><a href="task7.php">Task 7</a></h2>
 </body>
 </html>
