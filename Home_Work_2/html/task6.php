@@ -1,7 +1,6 @@
 <?php
 session_start();
-//$_SESSION['session_id'] = 0;
-
+$_SESSION['session_id'] = 0;
 // Проверяем, есть ли переменная session_id
 if (isset($_SESSION['session_id'])) {
     // Если session_id равен 0, показываем форму регистрации
