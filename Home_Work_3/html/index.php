@@ -36,9 +36,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     if (isset($input["SelectCategory"])) {
         header('Content-Type: application/json');
-        $json = array(['categoryName'=>'Test'],
-            'products'=>array([new Product("Test",123)]));
-        echo json_encode($json);
+        foreach ($_SESSION['categories'] as $category){
+            if ($input["SelectCategory"] === $category->GetCategoryName()){
+                $json = array(['categoryName'=>$category->GetCategoryName()],
+                    'products'=>$category->GetProductList());
+                echo json_encode($json);
+                exit();
+            }
+        }
+        echo json_encode(false);
         exit();
     } else {
         header('Content-Type: application/json');
