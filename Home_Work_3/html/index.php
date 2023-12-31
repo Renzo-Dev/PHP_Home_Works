@@ -5,37 +5,44 @@ session_start();
 
 if (!isset($_SESSION['categories'])){
     $_SESSION['categories'] = [];
+    $_SESSION['categories'][] = new Category("Test", [new Product("Apple", 123), new Product("Orange", 123)]);
 }
+
 if (!isset($_SESSION['products'])){
     $_SESSION['products'] = [];
 }
 
-//$_SESSION['categories'] = [
-//    new Category("Cars",
-//        [
-//            new Product("BMW5",15000),
-//            new Product("Audi",10000)
-//            ]),
-//    new Category("Food",[new Product("Eggs",1.75)])
-//];
-
-//print_r($_SERVER["REQUEST_METHOD"]);
-
-if ($_SERVER["REQUEST_METHOD"]==="POST") {
-    if (isset($_POST["categoryName"]) && $_POST["categoryName"] != "") {
-        // дабавляем обьект КАТЕГОРИЯ в список ( вместе с продуктами, и очищаем список продуктов )
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    // Добавление категории
+    if (isset($_POST["categoryName"]) && $_POST["categoryName"] !== "") {
         $categoryName = $_POST["categoryName"];
         $_SESSION['categories'][] = new Category($categoryName, [new Product("Test", 123), new Product("Test", 123)]);
-
-        header("Location: {$_SERVER['PHP_SELF']}"); // перенаправляем страницу саму на себя
-        exit(); // что бы не отправлались повторно данные с формы
+        header("Location: {$_SERVER['PHP_SELF']}");
+        exit();
     }
-    if (isset($_POST["productName"]) && isset($_POST["productPrice"]) && ($_POST["productName"] != "" && $_POST["productPrice"] != "") && (is_string($_POST["productName"]) && is_numeric($_POST["productPrice"]))) {
+
+    // Добавление продукта
+    if (isset($_POST["productName"]) && isset($_POST["productPrice"]) && ($_POST["productName"] !== "" && $_POST["productPrice"] !== "") && (is_string($_POST["productName"]) && is_numeric($_POST["productPrice"]))) {
         $productName = $_POST["productName"];
         $productPrice = $_POST["productPrice"];
         $_SESSION['products'][] = new Product($productName, $productPrice);
-
         header("Location: {$_SERVER['PHP_SELF']}");
+        exit();
+    }
+
+    // Проверка наличия категории
+    $inputJSON = file_get_contents('php://input');
+    $input = json_decode($inputJSON, true);
+
+    if (isset($input["SelectCategory"])) {
+        header('Content-Type: application/json');
+        $json = array(['categoryName'=>'Test'],
+            'products'=>array([new Product("Test",123)]));
+        echo json_encode($json);
+        exit();
+    } else {
+        header('Content-Type: application/json');
+        echo json_encode(false);
         exit();
     }
 }
@@ -107,33 +114,40 @@ if ($_SERVER["REQUEST_METHOD"]==="POST") {
 ?>
 
 <script>
-    window.addEventListener('DOMContentLoaded',()=>{
-        let categoryList = document.querySelectorAll('.categories');
+    let categories = document.querySelectorAll('.categories');
+    categories.forEach(category => {
+        category.addEventListener('click', () => {
+            const url = 'index.php';
+            const data = {
+                SelectCategory: category.textContent // Замените на нужное значение
+            };
 
-        categoryList.forEach(category => {
-            category.addEventListener('click', () => {
-                let categoryName = category.textContent;
-                const url = window.location.href.trim();
-                console.log(url)
-                fetch(url, {
-                    method: "POST",
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({categorySearch: categoryName})
+            console.log(data)
+            const requestOptions = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            };
+            console.log(requestOptions)
+
+            fetch(url, requestOptions)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
                 })
-                    .then(response => {
-                        if (response.ok) {
-                            console.log('Работает');
-                            // Дополнительные действия после успешного ответа
-                        } else {
-                            console.log('Не работает');
-                            // Дополнительные действия при неуспешном ответе
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Произошла ошибка:', error);
-                        // Дополнительные действия при возникновении ошибки
-                    });
-            });
+                .then(data => {
+                    if (data!=null) {
+                        console.log(data)
+                    }
+                    // Делайте что-то с данными, полученными от сервера
+                })
+                .catch(error => {
+                    console.error('Ошибка при выполнении запроса:', error);
+                });
         });
     });
 </script>
