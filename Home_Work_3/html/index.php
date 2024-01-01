@@ -5,29 +5,36 @@ session_start();
 
 if (!isset($_SESSION['categories'])){
     $_SESSION['categories'] = [];
-    $_SESSION['categories'][] = new Category("Test", [new Product("Apple", 123), new Product("Orange", 123)]);
 }
 
-if (!isset($_SESSION['products'])){
+if (!isset($_SESSION['products'])) {
     $_SESSION['products'] = [];
 }
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     // Добавление категории
-    if (isset($_POST["categoryName"]) && $_POST["categoryName"] !== "") {
-        $categoryName = $_POST["categoryName"];
-        $_SESSION['categories'][] = new Category($categoryName, [new Product("Test", 123), new Product("Test", 123)]);
+    if (isset($_POST["categoryName"]) && $_POST["categoryName"] != " ") {
+        if (count($_SESSION['products']) != 0) {
+            $categoryName = $_POST["categoryName"];
+            $_SESSION['categories'][] = new Category($categoryName, $_SESSION['products']);
+            $_SESSION['products'] = [];
+        }
         header("Location: {$_SERVER['PHP_SELF']}");
         exit();
     }
 
     // Добавление продукта
-    if (isset($_POST["productName"]) && isset($_POST["productPrice"]) && ($_POST["productName"] !== "" && $_POST["productPrice"] !== "") && (is_string($_POST["productName"]) && is_numeric($_POST["productPrice"]))) {
-        $productName = $_POST["productName"];
-        $productPrice = $_POST["productPrice"];
-        $_SESSION['products'][] = new Product($productName, $productPrice);
-        header("Location: {$_SERVER['PHP_SELF']}");
-        exit();
+    if (isset($_POST["productName"]) && isset($_POST["productPrice"])) {
+        if (($_POST["productName"] !== " " && $_POST["productPrice"] !== " ") && (is_string($_POST["productName"]) && is_numeric($_POST["productPrice"]))) {
+            $productName = $_POST["productName"];
+            $productPrice = $_POST["productPrice"];
+            $_SESSION['products'][] = new Product($productName, $productPrice);
+            header("Location: {$_SERVER['PHP_SELF']}");
+            exit();
+        }else {
+            header("Location: {$_SERVER['PHP_SELF']}");
+            exit();
+        }
     }
 
     // Проверка наличия категории
@@ -40,6 +47,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             if ($input["SelectCategory"] === $category->GetCategoryName()){
                 $json = array(['categoryName'=>$category->GetCategoryName()],
                     'products'=>$category->GetProductList());
+                $_SESSION['products'] = [];
                 echo json_encode($json);
                 exit();
             }
@@ -67,6 +75,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             font-size: 20px;
             transition: 300ms ease;
             width: 100px;
+            color: black;
         }
         .categories:hover {
             cursor: pointer;
@@ -107,6 +116,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 //}
 ?>
 <h3>Список продуктов</h3>
+<div class="product_list">
 <?php
     if (count($_SESSION['products'])!=0) {
         foreach ($_SESSION['products'] as $product) {
@@ -118,6 +128,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         echo "<div>В категории нету продуктов</div>";
     }
 ?>
+</div>
 
 <script>
     let categories = document.querySelectorAll('.categories');
@@ -127,8 +138,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             const data = {
                 SelectCategory: category.textContent // Замените на нужное значение
             };
-
-            console.log(data)
             const requestOptions = {
                 method: 'POST',
                 headers: {
@@ -136,7 +145,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 },
                 body: JSON.stringify(data)
             };
-            console.log(requestOptions)
 
             fetch(url, requestOptions)
                 .then(response => {
@@ -146,8 +154,24 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     return response.json();
                 })
                 .then(data => {
-                    if (data!=null) {
-                        console.log(data)
+                    if (data != null) {
+                        categories.forEach(elem => {
+                            elem.style.color = 'black';
+                        });
+                        category.style.color = 'Red';
+
+                        if (data.products.length > 0) {
+                            let products_list = document.querySelector('.product_list');
+                            while (products_list.firstChild) {
+                                products_list.removeChild(products_list.firstChild);
+                            }
+                            // изменяем список продуктов
+                            data.products.forEach(product => {
+                                let newElemProduct = document.createElement('div');
+                                newElemProduct.textContent = `${product.name} ${product.price}$`;
+                                products_list.appendChild(newElemProduct);
+                            })
+                        }
                     }
                     // Делайте что-то с данными, полученными от сервера
                 })
