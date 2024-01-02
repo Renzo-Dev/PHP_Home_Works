@@ -3,64 +3,102 @@ require_once 'task1.php';
 
 session_start();
 
-if (!isset($_SESSION['categories'])){
-    $_SESSION['categories'] = [];
+$unProduct = false;
+
+// Инициализация переменных сессии
+// Упрощенная инициализация сессионных переменных, используя оператор null coalescing
+$_SESSION['categories'] ??= [];
+$_SESSION['products'] ??= [];
+
+// Обработка GET-запроса
+if ($_SERVER["REQUEST_METHOD"] === "GET") {
+    if (!empty($_GET["SearchCategory"])) {
+        // Фильтрация и получение значения для поиска категории
+        $searchCategoryName = $_GET["SearchCategory"];
+
+        // Поиск категории по имени
+        $found = false;
+        foreach ($_SESSION["categories"] as $category) {
+            if ($category->GetCategoryName() === $searchCategoryName) {
+                // Найдена категория, устанавливаем продукты для сессии
+                $_SESSION['products'] = $category->GetProductList();
+                $found = true;
+                $unProduct = true;
+                break;
+            }
+        }
+    }
 }
 
-if (!isset($_SESSION['products'])) {
-    $_SESSION['products'] = [];
-}
-
+// Обработка POST-запроса
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    // Добавление категории
-    if (isset($_POST["categoryName"]) && $_POST["categoryName"] != " ") {
-        if (count($_SESSION['products']) != 0) {
-            $categoryName = $_POST["categoryName"];
+    // Добавление новой категории
+    if (!empty($_POST["categoryName"]) && trim($_POST["categoryName"]) !== "") {
+        if (!empty($_SESSION['products'])) {
+            // Фильтрация и получение имени новой категории
+            $categoryName = htmlspecialchars($_POST["categoryName"]);
+
+            // Создание новой категории и добавление в сессию
             $_SESSION['categories'][] = new Category($categoryName, $_SESSION['products']);
             $_SESSION['products'] = [];
+            header("Location: {$_SERVER['PHP_SELF']}");
+            exit();
         }
-        header("Location: {$_SERVER['PHP_SELF']}");
-        exit();
     }
 
-    // Добавление продукта
+    // Обработка добавления продукта
     if (isset($_POST["productName"]) && isset($_POST["productPrice"])) {
-        if (($_POST["productName"] !== " " && $_POST["productPrice"] !== " ") && (is_string($_POST["productName"]) && is_numeric($_POST["productPrice"]))) {
-            $productName = $_POST["productName"];
-            $productPrice = $_POST["productPrice"];
+        // Фильтрация и получение данных нового продукта
+        $productName = htmlspecialchars($_POST["productName"]);
+        $productPrice = htmlspecialchars($_POST["productPrice"]);
+
+        //  если список использовался для поиска и т.д , очищаем
+        if ($unProduct) {
+            $_SESSION['products'][] = [];
+        }
+        if (trim($productName) !== "" && is_numeric($productPrice)) {
+            // Создание нового продукта и добавление в сессию
             $_SESSION['products'][] = new Product($productName, $productPrice);
             header("Location: {$_SERVER['PHP_SELF']}");
             exit();
-        }else {
-            header("Location: {$_SERVER['PHP_SELF']}");
-            exit();
         }
     }
 
-    // Проверка наличия категории
+    // Обработка выбора категории
     $inputJSON = file_get_contents('php://input');
     $input = json_decode($inputJSON, true);
 
     if (isset($input["SelectCategory"])) {
+        // Поиск выбранной категории и передача информации в формате JSON
+        // (поддерживается только одна выбранная категория)
         header('Content-Type: application/json');
-        foreach ($_SESSION['categories'] as $category){
-            if ($input["SelectCategory"] === $category->GetCategoryName()){
-                $json = array(['categoryName'=>$category->GetCategoryName()],
-                    'products'=>$category->GetProductList());
-                $_SESSION['products'] = [];
-                echo json_encode($json);
-                exit();
+        $selectedCategory = $input["SelectCategory"];
+        $foundCategory = null;
+
+        foreach ($_SESSION['categories'] as $category) {
+            if ($selectedCategory === $category->GetCategoryName()) {
+                $foundCategory = $category;
+                break;
             }
         }
-        echo json_encode(false);
-        exit();
-    } else {
-        header('Content-Type: application/json');
-        echo json_encode(false);
-        exit();
+
+        if ($foundCategory !== null) {
+            $unProduct = true;
+            $json = [
+                'categoryName' => $foundCategory->GetCategoryName(),
+                'products' => $foundCategory->GetProductList()
+            ];
+            $_SESSION['products'] = [];
+            echo json_encode($json);
+            exit();
+        } else {
+            echo json_encode(false);
+            exit();
+        }
     }
 }
 ?>
+
 
 <!doctype html>
 <html lang="en">
@@ -71,12 +109,23 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
     <style>
+        input[type="submit"] {
+            border-radius: 13px;
+            color: black;
+            background-color: white;
+        }
+
+        input {
+            color: black;
+        }
+
         .categories {
             font-size: 20px;
             transition: 300ms ease;
             width: 100px;
             color: black;
         }
+
         .categories:hover {
             cursor: pointer;
             background-color: #d3d3d3;
@@ -85,49 +134,48 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 </head>
 <body>
 <h3>Добавить продукты</h3>
-<form action="<?=$_SERVER["PHP_SELF"]?>" method="post">
+<form action="<?= $_SERVER["PHP_SELF"] ?>" method="post">
     <input name="productName" type="text" autocomplete="off" placeholder="Name">
     <input name="productPrice" type="text" autocomplete="off" placeholder="Price">
     <input type="submit" value="Add">
 </form>
-
+<h3>Поиск категории</h3>
+<form action="<?= $_SERVER["PHP_SELF"] ?>" method="get">
+    <input name="SearchCategory" type="text" placeholder="Search">
+    <input type="submit" value="Search">
+</form>
 <h3>Добавить категорию</h3>
-<form action="<?=$_SERVER["PHP_SELF"]?>" method="post">
-    <input  name="categoryName" placeholder="Name" autocomplete="off">
+<form action="<?= $_SERVER["PHP_SELF"] ?>" method="post">
+    <input name="categoryName" placeholder="Name" autocomplete="off">
     <input type="submit" value="Add">
 </form>
 
 <h3>Список Категорий</h3>
 <?php
 // проверка , если у нас есть категории, выводит список категорий
-//if(isset($_SESSION['categories'])){
-    if (count($_SESSION['categories'])!=0) {
-        foreach ($_SESSION['categories'] as $category) {
-            $name = $category->GetCategoryName();
-            echo '<div class="categories">' . $name . '</div>';
-        }
-    }else {
-        echo "<div>Нету категорий</div>";
+if (count($_SESSION['categories']) != 0) {
+    foreach ($_SESSION['categories'] as $category) {
+        $name = $category->GetCategoryName();
+        echo '<div class="categories">' . $name . '</div>';
     }
-//}else {
-//    // если нету создаем переменную
-//    $_SESSION['categories'] = [];
-//    echo "У нас нету категорий";
-//}
+} else {
+    echo "<div>Нету категорий</div>";
+}
+
 ?>
 <h3>Список продуктов</h3>
 <div class="product_list">
-<?php
-    if (count($_SESSION['products'])!=0) {
+    <?php
+    if (isset($_SESSION['products']) && count($_SESSION['products']) != 0) {
         foreach ($_SESSION['products'] as $product) {
             $name = $product->name;
             $price = $product->price;
-            echo '<div>' . $name ." ". $price . "$" . '</div>';
+            echo '<div>' . $name . " " . $price . "$" . '</div>';
         }
-    }else {
+    } else {
         echo "<div>В категории нету продуктов</div>";
     }
-?>
+    ?>
 </div>
 
 <script>
@@ -173,7 +221,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             })
                         }
                     }
-                    // Делайте что-то с данными, полученными от сервера
                 })
                 .catch(error => {
                     console.error('Ошибка при выполнении запроса:', error);
