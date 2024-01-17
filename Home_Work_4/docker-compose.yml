@@ -7,5 +7,5 @@ services:
     ports:
       - "8080:80" # Пробрасываем порт 8080 на локальную машину к порту 80 в контейнере
     volumes:
-      - ./apache-config/httpd.conf:/usr/local/apache2/conf/httpd.conf
+      - ./apache-php/httpd.conf:/usr/local/apache2/conf/httpd.conf
       - ./public/:/var/www/html
