@@ -1,5 +1,5 @@
 <?php
-function createCategoryTable():string
+function createCategoryTable(): string
 {
     return "CREATE TABLE Categories (
     id   serial PRIMARY KEY,
@@ -7,7 +7,7 @@ function createCategoryTable():string
 );";
 }
 
-function createUserTable():string
+function createUserTable(): string
 {
     return "CREATE TABLE Users (
     id   serial PRIMARY KEY,
@@ -15,7 +15,7 @@ function createUserTable():string
 );";
 }
 
-function createCartTable():string
+function createCartTable(): string
 {
     return "CREATE TABLE Carts (
     id        serial PRIMARY KEY,
@@ -26,7 +26,7 @@ function createCartTable():string
 );";
 }
 
-function createProductTable():string
+function createProductTable(): string
 {
     return "CREATE TABLE Products (
     id         serial PRIMARY KEY,

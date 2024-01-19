@@ -1,4 +1,5 @@
 <?php
+
 class QueryConstructor
 {
     private string $host; // localhost / postgres

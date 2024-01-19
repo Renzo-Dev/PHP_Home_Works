@@ -23,3 +23,19 @@ function getAllCart(): string
     join public.products p on p.id = c.productid
     join public.categories c2 on c2.id = p.idcategory";
 }
+
+function CategoryWithoutUserProducts($userName): string
+{
+    return "
+        SELECT distinct c.id AS category_id, c.name AS category_name
+             FROM categories c
+             JOIN products p ON c.id = p.idcategory
+             LEFT JOIN (
+                  SELECT DISTINCT c.userid, p.id AS product_id
+                     FROM carts c
+                 JOIN products p ON c.productid = p.id
+        WHERE c.userid = any (SELECT u.id FROM users AS u WHERE u.name = 'Dan')
+    ) user_cart ON p.id = user_cart.product_id
+    WHERE user_cart.product_id is null and EXISTS (SELECT 1 FROM users AS u WHERE u.name = 'Dan');
+    ";
+}
