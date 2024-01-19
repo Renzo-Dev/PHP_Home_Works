@@ -1,7 +1,7 @@
 <?php
 function createCategoryTable():string
 {
-    return "CREATE TABLE Category (
+    return "CREATE TABLE Categories (
     id   serial PRIMARY KEY,
     Name varchar(105)
 );";
@@ -9,7 +9,7 @@ function createCategoryTable():string
 
 function createUserTable():string
 {
-    return "CREATE TABLE \"user\" (
+    return "CREATE TABLE Users (
     id   serial PRIMARY KEY,
     Name varchar(105)
 );";
@@ -17,22 +17,22 @@ function createUserTable():string
 
 function createCartTable():string
 {
-    return "CREATE TABLE Cart (
+    return "CREATE TABLE Carts (
     id        serial PRIMARY KEY,
     userID    integer,
     productID integer,
-    CONSTRAINT FK_Cart_Product FOREIGN KEY (productID) REFERENCES Product (id),
-    CONSTRAINT FK_Cart_User FOREIGN KEY (userID) REFERENCES \"user\" (id)
+    CONSTRAINT FK_Cart_Product FOREIGN KEY (productID) REFERENCES Products (id),
+    CONSTRAINT FK_Cart_User FOREIGN KEY (userID) REFERENCES Users (id)
 );";
 }
 
 function createProductTable():string
 {
-    return "CREATE TABLE Product (
+    return "CREATE TABLE Products (
     id         serial PRIMARY KEY,
     Name       varchar(105),
     Price      integer,
     idCategory integer,
-    CONSTRAINT FK_Product_Category FOREIGN KEY (idCategory) REFERENCES Category (id)
+    CONSTRAINT FK_Product_Category FOREIGN KEY (idCategory) REFERENCES Categories (id)
 );";
 }

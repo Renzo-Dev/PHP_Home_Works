@@ -34,7 +34,32 @@ class QueryConstructor
             }
             $pdo = null; // Закрываем соединение после выполнения запросов
         } catch (PDOException $exp) {
+            if (!$exp->getCode() == "42P07") { // обходим исключение , если таблицы уже созданы в БД
+                echo "Error: " . $exp->getMessage();
+            }
+        }
+    }
+
+    public function Insert($query)
+    {
+        try {
+            $pdo = $this->createPDO();
+            $pdo->exec($query);
+            $pdo = null; // Закрываем соединение после выполнения запросов
+        } catch (PDOException $exp) {
             echo "Error: " . $exp->getMessage();
+        }
+    }
+
+    public function Select($query)
+    {
+        try {
+            $pdo = $this->createPDO();
+            $stmt = $pdo->query($query);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $exp) {
+            echo "Error: " . $exp->getMessage();
+            return null;
         }
     }
 
