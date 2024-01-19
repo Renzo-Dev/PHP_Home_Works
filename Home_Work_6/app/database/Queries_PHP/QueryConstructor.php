@@ -24,7 +24,7 @@ class QueryConstructor
      * @param array $query_list Список SQL-запросов для выполнения
      * @return void
      */
-    public function create(array $query_list = []): void
+    public function Create(array $query_list = []): void
     {
         try {
             $pdo = $this->createPDO();
