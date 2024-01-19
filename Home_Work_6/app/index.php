@@ -1,3 +1,12 @@
+<?php
+require_once ('database/Queries_PHP/QueryConstructor.php');
+require_once('database/Queries_PHP/Create/createTables.php');
+
+$query = new QueryConstructor("postgres","5432","Renzo","Dan098dan","homeWork");
+$query->Create([createCategoryTable(),createUserTable(),createProductTable(),createCartTable()]);
+
+?>
+
 <!doctype html>
 <html lang="en">
 <head>
