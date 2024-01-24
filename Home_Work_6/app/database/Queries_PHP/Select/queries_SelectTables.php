@@ -34,8 +34,8 @@ function CategoryWithoutUserProducts($userName): string
                   SELECT DISTINCT c.userid, p.id AS product_id
                      FROM carts c
                  JOIN products p ON c.productid = p.id
-        WHERE c.userid = any (SELECT u.id FROM users AS u WHERE u.name = 'Dan')
+        WHERE c.userid = any (SELECT u.id FROM users AS u WHERE u.name = '$userName')
     ) user_cart ON p.id = user_cart.product_id
-    WHERE user_cart.product_id is null and EXISTS (SELECT 1 FROM users AS u WHERE u.name = 'Dan');
+    WHERE user_cart.product_id is null and EXISTS (SELECT 1 FROM users AS u WHERE u.name = '$userName');
     ";
 }
