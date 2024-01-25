@@ -1,39 +1,3 @@
-## Используйте официальный образ PHP с Apache в качестве базового образа
-#FROM php:8.2-apache
-#
-#RUN apt-get update && \
-#    apt-get install -y \
-#    libzip-dev \
-#    zip \
-#    mc \
-#    unzip \
-#    && docker-php-ext-install zip
-#
-## Включите модули Apache
-#RUN a2enmod rewrite
-#
-## Установите рабочую директорию внутри контейнера
-#WORKDIR /var/www/html
-#
-## Скопируйте содержимое локального проекта Laravel в контейнер
-#COPY ./homework /var/www/html
-#
-### Устанавливаем Composer
-#RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-##
-### Устанавливаем зависимости Laravel
-#RUN composer install --optimize-autoloader --no-dev
-#
-## Установите разрешения для того, чтобы Apache мог записывать в директории storage и bootstrap
-#RUN chown -R www-data:www-data storage bootstrap
-#
-## Откройте порт 80 для Apache
-#EXPOSE 80
-#
-## Запустите Apache в фоновом режиме
-#CMD ["apache2-foreground"]
-
-
 # Используем образ с Apache и PHP для Laravel
 FROM php:8.2-apache
 
