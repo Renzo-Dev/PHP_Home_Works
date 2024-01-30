@@ -1,5 +1,5 @@
 # Используем образ с Apache и PHP для Laravel
-FROM php:8.2-apache
+FROM php:8.3.2-apache
 
 # Устанавливаем необходимые расширения PHP
 RUN apt-get update && \
