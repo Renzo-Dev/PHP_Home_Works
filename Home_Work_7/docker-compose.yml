@@ -7,4 +7,5 @@ services:
     ports:
       - "8080:80"
     volumes:
+      - ./apache-config/httpd.conf:/etc/apache2/sites-available/000-default.conf
       - ./homework:/var/www/html

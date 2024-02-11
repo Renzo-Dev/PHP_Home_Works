@@ -25,14 +25,8 @@ RUN cd /var/www/html/ && composer install --no-interaction --no-dev --optimize-a
 # Активируем модуль rewrite для Apache
 RUN a2enmod rewrite
 
-# Опционально: Копируем файл конфигурации Apache
-COPY apache-config/httpd.conf /etc/apache2/sites-available/000-default.conf
-
 # Опционально: Устанавливаем необходимые настройки Apache
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
-
-# Опционально: Копируем кастомные настройки Apache
-COPY apache-config/httpd.conf /etc/apache2/sites-available/000-default.conf
 
 # Запускаем Apache
 CMD ["apache2-foreground"]
