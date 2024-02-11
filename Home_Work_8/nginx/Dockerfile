@@ -1,6 +1,11 @@
 FROM nginx
 
-#COPY nginx.conf /etc/nginx/nginx.conf
+RUN apt-get update && apt-get -y upgrade && \
+    apt-get install -y mc
+
+COPY ../public /var/www/html
+
+WORKDIR /var/www/html
 
 # Экспонируем порт Nginx (по умолчанию 80)
 EXPOSE 80
