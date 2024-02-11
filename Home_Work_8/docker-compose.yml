@@ -20,7 +20,6 @@ services:
       - "9000:9000"
     volumes:
       - ./php-fpm/php-fpm.conf:/usr/local/etc/php-fpm.d/www.conf
-      - ./php-fpm/www.conf:/usr/local/etc/php-fpm.d/www.conf
 #      - ./php-fpm/php-fpm.conf:/usr/local/etc/php-fpm.conf
       - html:/var/www/html
 volumes:
