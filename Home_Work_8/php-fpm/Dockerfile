@@ -4,7 +4,12 @@ FROM php:8.2-fpm
 RUN set -eux; \
     apt-get update; \
     apt-get upgrade -y; \
-    apt-get install -y --no-install-recommends \
+    apt-get install -y git \
+            libzip-dev \
+            zip \
+            mc \
+            unzip \
+            --no-install-recommends \
             curl \
             libmemcached-dev \
             libz-dev \
@@ -38,6 +43,17 @@ RUN mkdir -p /var/run/php/
 
 RUN chmod 755 /var/run/php/
 
+# Копируем файлы Laravel в контейнер
+COPY ../laravel /var/www/html/
+
+# Устанавливаем права на директорию storage и bootstrap
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap
+
+# Устанавливаем Composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+# Устанавливаем зависимости Laravel
+RUN cd /var/www/html/ && composer install --no-interaction --no-dev --optimize-autoloader
 
 # Открываем порт 9000, который используется PHP-FPM
 EXPOSE 9000

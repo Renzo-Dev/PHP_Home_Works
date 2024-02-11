@@ -3,7 +3,7 @@ FROM nginx
 RUN apt-get update && apt-get -y upgrade && \
     apt-get install -y mc
 
-COPY ../public /var/www/html
+#COPY ../public /var/www/html
 
 WORKDIR /var/www/html
 
