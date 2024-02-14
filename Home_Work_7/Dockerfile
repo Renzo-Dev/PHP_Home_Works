@@ -11,7 +11,7 @@ RUN apt-get update && \
     && docker-php-ext-install zip
 
 # Копируем файлы Laravel в контейнер
-COPY ./homework /var/www/html/
+#COPY ./homework /var/www/html/
 
 # Устанавливаем права на директорию storage и bootstrap
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap
