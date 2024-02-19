@@ -64,3 +64,11 @@ EXPOSE 9000
 
 # Запускаем PHP-FPM при старте контейнера
 CMD ["php-fpm"]
+
+
+#DB_CONNECTION=pgsql
+#DB_HOST=db
+#DB_PORT=5432
+#DB_DATABASE=homeWork
+#DB_USERNAME=Renzo
+#DB_PASSWORD=12345
