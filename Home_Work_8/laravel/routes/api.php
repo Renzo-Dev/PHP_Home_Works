@@ -8,7 +8,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::prefix('book')->group(function (){
-    Route::post('add',[BookController::class,'store'])->name('api.addBook');
-    Route::get('show', [BookController::class,'show'])->name('book.show');
+Route::prefix('book')->group(function () {
+    Route::post('add', [BookController::class, 'store'])->name('api.addBook');
+    Route::get('show', [BookController::class, 'show'])->name('book.show');
 });

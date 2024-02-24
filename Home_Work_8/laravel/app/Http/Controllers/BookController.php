@@ -14,7 +14,7 @@ class BookController extends Controller
 
     public function create()
     {
-        return view('Book.index')->with('addBook',true);
+        return view('Book.index')->with('addBook', true);
     }
 
     public function store(Request $request)
@@ -30,13 +30,18 @@ class BookController extends Controller
             'author' => $request->input('author'),
         ]);
 
-        return view('Book.index')->with('success','Книга успешно доабвлена');
+        return view('Book.index')->with('success', 'Книга успешно добавлена');
     }
 
     public function show()
     {
         $books = Book::select('title', 'author')->get();
-        return view('Book.index')->with('showBooks', $books);
+        if (isset($books) && count($books) > 0) {
+            $data = view('Book.index')->with('showBooks', $books);
+        } else {
+            $data = view('Book.index')->with('ZeroBooks', true);
+        }
+        return $data;
     }
 
     public function edit(string $id)

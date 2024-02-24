@@ -34,6 +34,9 @@
         </div>
     @endforeach
 @endif
+@if(isset($ZeroBooks) && $ZeroBooks)
+    <h2>В Базе данных , нету книг</h2>
+@endif
 </div>
 </body>
 </html>
