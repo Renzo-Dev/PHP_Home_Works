@@ -35,19 +35,19 @@ services:
       - laravel:/var/www/html
     networks:
       - my_network
-#volumes:
-#  laravel:
-#    driver: local
-#networks:
-#  my_network:
-#    driver: bridge
 volumes:
   laravel:
     driver: local
-    driver_opts:
-      type: none
-      device: ./laravel
-      o: bind
 networks:
   my_network:
     driver: bridge
+#volumes:
+#  laravel:
+#    driver: local
+#    driver_opts:
+#      type: none
+#      device: ./laravel
+#      o: bind
+#networks:
+#  my_network:
+#    driver: bridge
