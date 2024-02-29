@@ -60,26 +60,73 @@
         </div>
     </div>
 <script>
-    window.addEventListener('DOMContentLoaded',function(){
+    window.addEventListener('DOMContentLoaded',function() {
         let categories = document.querySelectorAll('.category');
-        categories.forEach(category=>{
-            category.addEventListener('click',function () {
+        categories.forEach(category => {
+            category.addEventListener('click', function () {
                 var myModal = document.querySelector('.modal');
                 document.querySelector('.modal-title').textContent = category.textContent;
                 myModal.style.display = "block"; // Показать модальное окно
                 let changeModal = new bootstrap.Modal(myModal);
                 changeModal.show();
-
-                let input = document.querySelector('.changeCategory');
-                input.addEventListener("input", function() {
-                    var button = document.querySelector('.btn-secondary');
-                    if(input.value.length === 0){
-                        button.setAttribute('disabled', 'disabled');
-                    } else {
-                        button.removeAttribute('disabled');
-                    }
-                });
             });
+        });
+        // кнопка изминения в модельной форме изминения категории
+        var button = document.querySelector('.btn-secondary');
+
+        // поле ввода , нового название категории
+        let input = document.querySelector('.changeCategory');
+
+        input.addEventListener("input", function () {
+            if (input.value.length === 0) {
+                button.setAttribute('disabled', 'disabled');
+            } else {
+                button.removeAttribute('disabled');
+            }
+        });
+
+        button.addEventListener('click', function () {
+            // URL для запроса
+            let url = '/api/api_categories/' + api_category; // Подставьте значение api_category
+
+            // Данные для отправки
+            let data = {
+                // Ваши данные для обновления категории
+                name: 'Новое название категории',
+                description: 'Новое описание категории'
+            };
+
+            // Получение CSRF-токена из мета-тега в DOM
+            let csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            // Опции запроса
+            let options = {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken // Подставляем CSRF-токен в заголовок запроса
+                },
+                body: JSON.stringify(data)
+            };
+
+            // Выполнить запрос
+            fetch(url, options)
+                .then(response => {
+                    // Обработка ответа от сервера
+                    if (!response.ok) {
+                        throw new Error('Ошибка HTTP: ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(jsonResponse => {
+                    // Обработка данных, полученных от сервера
+                    console.log('Данные от сервера:', jsonResponse);
+                })
+                .catch(error => {
+                    // Обработка ошибок
+                    console.error('Ошибка при выполнении запроса:', error);
+                });
+
         });
     });
 </script>
