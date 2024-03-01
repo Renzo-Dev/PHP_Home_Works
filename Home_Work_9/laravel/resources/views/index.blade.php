@@ -7,6 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Home Work 9</title>
     <link href="{{asset('css/app.css')}}" rel="stylesheet" type="text/css">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </head>
@@ -23,6 +24,7 @@
     <div>
     <h2>Создание Категории</h2>
         <form method="post" action="{{route('api_categories.store')}}">
+            @csrf
             <input name="categoryName" type="text" autocomplete="off" placeholder="Category Name">
             <button type="submit">Создать</button>
         </form>
@@ -52,6 +54,7 @@
                 <div class="modal-body">
                     <input class="changeCategory" style="width: 100%; text-align: left;padding: 10px" type="text" autocomplete="off" placeholder="Новое название категории">
                 </div>
+                @csrf
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" disabled>Изминить</button>
                     <button type="button" class="btn btn-danger">Удалить</button>
@@ -62,17 +65,19 @@
 <script>
     window.addEventListener('DOMContentLoaded',function() {
         let categories = document.querySelectorAll('.category');
+        let current_category;
+        let myModal = document.querySelector('.modal');
+        let changeModal = new bootstrap.Modal(myModal);
         categories.forEach(category => {
             category.addEventListener('click', function () {
-                var myModal = document.querySelector('.modal');
+                current_category = category;
                 document.querySelector('.modal-title').textContent = category.textContent;
                 myModal.style.display = "block"; // Показать модальное окно
-                let changeModal = new bootstrap.Modal(myModal);
                 changeModal.show();
             });
         });
         // кнопка изминения в модельной форме изминения категории
-        var button = document.querySelector('.btn-secondary');
+        let button = document.querySelector('.btn-secondary');
 
         // поле ввода , нового название категории
         let input = document.querySelector('.changeCategory');
@@ -86,25 +91,20 @@
         });
 
         button.addEventListener('click', function () {
-            // URL для запроса
-            let url = '/api/api_categories/' + api_category; // Подставьте значение api_category
 
+            // URL для запроса
+            let url = `/api/api_categories/${current_category.textContent}`; // Подставьте значение api_category
+
+            console.log(url);
             // Данные для отправки
             let data = {
-                // Ваши данные для обновления категории
-                name: 'Новое название категории',
-                description: 'Новое описание категории'
+                name: input.value,
             };
-
-            // Получение CSRF-токена из мета-тега в DOM
-            let csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
             // Опции запроса
             let options = {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken // Подставляем CSRF-токен в заголовок запроса
                 },
                 body: JSON.stringify(data)
             };
@@ -120,13 +120,13 @@
                 })
                 .then(jsonResponse => {
                     // Обработка данных, полученных от сервера
-                    console.log('Данные от сервера:', jsonResponse);
+                    current_category.textContent = jsonResponse['newName'];
+                    changeModal.hide();
                 })
                 .catch(error => {
                     // Обработка ошибок
                     console.error('Ошибка при выполнении запроса:', error);
                 });
-
         });
     });
 </script>
