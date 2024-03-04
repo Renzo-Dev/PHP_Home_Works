@@ -105,8 +105,6 @@
                     },
                 }
 
-                console.log(url)
-
                 fetch(url, options)
                     .then(response => {
                         // Обработка ответа от сервера
