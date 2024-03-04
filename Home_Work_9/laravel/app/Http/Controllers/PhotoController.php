@@ -11,7 +11,7 @@ class PhotoController extends Controller
      */
     public function index()
     {
-        //
+        return view('index')->with('component','photo');
     }
 
     /**
