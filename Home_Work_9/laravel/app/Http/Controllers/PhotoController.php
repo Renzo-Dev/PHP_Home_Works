@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Photo;
 use Illuminate\Http\Request;
 
 class PhotoController extends Controller
@@ -11,7 +12,8 @@ class PhotoController extends Controller
      */
     public function index()
     {
-        return view('index')->with('component','photo');
+        // возвращаем все фотографии
+        return Photo::all();
     }
 
     /**
