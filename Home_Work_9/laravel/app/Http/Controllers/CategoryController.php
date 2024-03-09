@@ -17,8 +17,6 @@ class CategoryController extends Controller
             return $category->name;
         });
 
-//        var_dump($categories);
-
         return view('index')->with([
             'component' => 'category',
             'categories' => $categories

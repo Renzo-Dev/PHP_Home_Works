@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('photos', function (Blueprint $table) {
             $table->id();
-            $table->string('path'); // поле для хранения пути к фотографии
+            $table->string('path')->unique(); // поле для хранения пути к фотографии
             $table->timestamps();
         });
     }

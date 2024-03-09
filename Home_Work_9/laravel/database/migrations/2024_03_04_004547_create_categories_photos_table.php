@@ -14,11 +14,11 @@ return new class extends Migration
         Schema::create('categories_photos', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('category_id');
-            $table->unsignedBigInteger('photo_id');
+            $table->unsignedBigInteger('photo_id')->unique();
             $table->timestamps();
 
             // Внешний ключ для категории
-            $table->foreign('category_id')->references('id')->on('categories')->onDelete('restrict');
+            $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
 
             // Внешний ключ для фотографии
             $table->foreign('photo_id')->references('id')->on('photos')->onDelete('cascade');

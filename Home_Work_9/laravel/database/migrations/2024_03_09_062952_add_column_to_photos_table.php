@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('categories_photos', function (Blueprint $table) {
-            $table->unique(['category_id', 'photo_id']);
+        Schema::table('photos', function (Blueprint $table) {
+            $table->string('name')->unique()->nullable();
         });
     }
 
@@ -21,9 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('categories_photos', function (Blueprint $table) {
-            // Удаляем уникальный ключ
-            $table->dropUnique(['category_id', 'photo_id']);
+        Schema::table('photos', function (Blueprint $table) {
+            $table->dropColumn('name');
         });
     }
 };

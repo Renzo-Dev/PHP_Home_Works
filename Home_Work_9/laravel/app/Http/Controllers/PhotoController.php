@@ -3,7 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Photo;
+use Dflydev\DotAccessData\Exception\DataException;
+use GuzzleHttp\Exception\RequestException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use Mockery\Exception;
 
 class PhotoController extends Controller
 {
@@ -12,8 +16,17 @@ class PhotoController extends Controller
      */
     public function index()
     {
-        // возвращаем все фотографии
-        return Photo::all();
+        try {
+            $data = Photo::select('id', 'path','name')->get();
+            return view('index')->with([
+                'component' => 'photo',
+                'photos' => $data
+            ]);
+        } catch (ModelNotFoundException $nt) {
+            return response()->json(['ErrorMessage' => $nt]);
+        } catch (Exception $ex) {
+            return response()->json('ErrorMessage', $ex);
+        }
     }
 
     /**
@@ -29,7 +42,11 @@ class PhotoController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $t = true;
+        if ($t) {
+            return response()->json(['error' => 'не удалось загрузить фото'], 422);
+        }
+        return response()->json(['message' => 'Фото успешно загружено'], 200);
     }
 
     /**
