@@ -183,7 +183,8 @@
                 let fileInput = document.getElementById('formFile');
                 if (fileInput.files.length > 0) {
 
-                    // отправка файла серверу
+                    // отправка картинки серверу
+
                 }
             });
         });
