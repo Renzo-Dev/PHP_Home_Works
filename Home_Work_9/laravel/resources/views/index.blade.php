@@ -180,51 +180,13 @@
 
             buttonAddFile.addEventListener('click', function () {
                 // провекра , есть ли у нас выбранный файл
-                let file = document.getElementById('formFile');
-                if (file.files[0] != null) {
-                    console.log(file.files[0])
-                }
-                // отправка файла серверу
-                uploadPhoto(file).then(data=>{
-                    console.log('Изображение успешно загружено: ' , data);
-                }).catch(error=>{
-                    console.error('Ошибка загрузки изображения: ', error);
-                })
+                let fileInput = document.getElementById('formFile');
+                if (fileInput.files.length > 0) {
 
-                // обработка ответа от сервера
+                    // отправка файла серверу
+                }
             });
         });
-
-        function uploadPhoto(file) {
-            return new Promise((resolve, reject) => {
-                let formData = new FormData();
-                formData.append('photo', file);
-
-                let options = {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                        _token: '{{ csrf_token() }}',
-                    },
-                    body: formData
-                }
-
-                let url = 'api/api_photos_web';
-                // выполняем запрос
-                fetch(url, options)
-                    .then(response => {
-                        // проверяем статус
-                        if (!response.ok) {
-                            console.log('Ошибка' + response.status)
-                        }
-                        return response.json(); // Возвращаем данные в формате JSON
-                    }).then(data => {
-                    resolve(data); // Успешно полученные данные от сервера
-                }).catch(error => {
-                    reject(error);
-                });
-            });
-        }
     });
 </script>
 </body>

@@ -42,10 +42,7 @@ class PhotoController extends Controller
      */
     public function store(Request $request)
     {
-        $t = true;
-        if ($t) {
-            return response()->json(['error' => 'не удалось загрузить фото'], 422);
-        }
+//        return response()->json(['error' => 'не удалось загрузить фото'], 422);
         return response()->json(['message' => 'Фото успешно загружено'], 200);
     }
 
