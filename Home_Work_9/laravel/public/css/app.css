@@ -18,6 +18,29 @@ body, html {
     justify-content: space-around;
 }
 
+.selectCat {
+    background-color: #373737;
+}
+
+.categ_wrapper_select {
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+    height: 100px;
+    width: 100%;
+    background-color: #d3d3d3;
+}
+
+.selectCategory {
+    width: 100%;
+    transition: 200ms ease-in;
+}
+
+.selectCategory:hover {
+    cursor: pointer;
+    background-color: #5b5b5b;
+}
+
 .topPanel > a {
     user-select: none;
     font-size: 20px;

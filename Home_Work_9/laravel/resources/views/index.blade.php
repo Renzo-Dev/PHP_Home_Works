@@ -88,7 +88,15 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <input class="file_name form-control" type="text" placeholder="Название файла">
+                    <div class="categ_wrapper_select">
+                        @if((isset($categories) && count($categories) > 0))
+                            @foreach($categories as $category)
+                                <div class="selectCategory">{{ $category }}</div>
+                            @endforeach
+                        @endif
+                    </div>
+                    <p>
+                        <input class="file_name form-control" type="text" placeholder="Название файла">
                     </p>
                     <input class="form-control-file" type="file" accept="image/jpeg, image/png" id="formFile">
                 </div>
@@ -100,39 +108,32 @@
     </div>
 </div>
 <script>
-    window.addEventListener('DOMContentLoaded', function () {
-        let categories = document.querySelectorAll('.category');
-        let current_category;
-        let create_category = document.querySelector('#exampleModal1');
-        let changeModal = new bootstrap.Modal(create_category);
+    document.addEventListener('DOMContentLoaded', function () {
+        const categories = document.querySelectorAll('.category');
+        let currentCategory;
+        const createCategoryModal = new bootstrap.Modal(document.querySelector('#exampleModal1'));
+        const buttonChange = document.querySelector('#exampleModal1 .btn-secondary');
+        const inputChangeCategory = document.querySelector('#exampleModal1 .changeCategory');
+
         categories.forEach(category => {
             category.addEventListener('click', function () {
-                current_category = category;
+                currentCategory = category;
                 document.querySelector('.modal-title').textContent = category.textContent;
-                changeModal.show();
+                createCategoryModal.show();
             });
         });
 
-        let buttonChange = create_category.querySelector('.btn-secondary');
-        let input = create_category.querySelector('.changeCategory');
-
-        input.addEventListener("input", function () {
-            if (input.value.length === 0) {
-                buttonChange.setAttribute('disabled', 'disabled');
-            } else {
-                buttonChange.removeAttribute('disabled');
-            }
+        inputChangeCategory.addEventListener('input', function () {
+            buttonChange.disabled = inputChangeCategory.value.length === 0;
         });
 
         buttonChange.addEventListener('click', function () {
-            let url = `/api/api_categories/${current_category.textContent}`;
-
-            let data = {
-                name: input.value,
+            const url = `/api/api_categories/${currentCategory.textContent}`;
+            const data = {
+                name: inputChangeCategory.value,
                 _token: '{{ csrf_token() }}',
             };
-
-            let options = {
+            const options = {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -148,47 +149,86 @@
                     return response.json();
                 })
                 .then(jsonResponse => {
-                    current_category.textContent = jsonResponse['newName'];
-                    changeModal.hide();
+                    currentCategory.textContent = jsonResponse.newName;
+                    createCategoryModal.hide();
                 })
                 .catch(error => {
                     console.error('Ошибка при выполнении запроса:', error);
                 });
         });
 
+        const modalCreatePhoto = document.getElementById('create_photo');
 
-        let modal_create_photo = document.getElementById('create_photo');
+        modalCreatePhoto.addEventListener('click', function () {
 
-        modal_create_photo.addEventListener('click', function () {
-            // открываем окно для добавления фото , названия фото
+            // выбираем категорию
+            let selectCategories = document.querySelectorAll('.selectCategory');
+            if (selectCategories.length > 0) {
+                let curSelCategory;
+                selectCategories.forEach(elem => {
+                    elem.addEventListener('click', function () {
+                        if (curSelCategory != null) {
+                            curSelCategory.classList.remove('selectCat');
+                        }
+                        elem.classList.add('selectCat');
+                        curSelCategory = elem;
+                    });
+                });
 
-            let create_photo = document.querySelector('#exampleModal2');
+                const createPhotoModal = new bootstrap.Modal(document.querySelector('#exampleModal2'));
 
-            let changeModal = new bootstrap.Modal(create_photo);
-            changeModal.show();
+                createPhotoModal.show();
+                const buttonAddFile = document.querySelector('#exampleModal2 .btn-success');
+                const inputFileName = document.querySelector('#exampleModal2 .file_name');
 
-            let buttonAddFile = create_photo.querySelector('.btn-success');
-            let input = create_photo.querySelector('.file_name');
+                inputFileName.addEventListener('input', function () {
+                    buttonAddFile.disabled = inputFileName.value.length === 0;
+                });
 
-            input.addEventListener("input", function () {
-                if (input.value.length === 0) {
-                    buttonAddFile.setAttribute('disabled', 'disabled');
-                } else {
-                    buttonAddFile.removeAttribute('disabled');
-                }
-            });
+                buttonAddFile.addEventListener('click', function () {
+                    const fileInput = document.getElementById('formFile');
+                    if (fileInput.files.length > 0) {
+                        // отправка картинки на сервер
+                        // создаем обьект FormData
+                        const formData = new FormData();
+                        // добавляем файл картинки в объект FormData
+                        const file = fileInput.files[0]; // получаем выбранный файл
+                        formData.append('image', file); // добавляем файл в FormData
+                        formData.append('category', curSelCategory.textContent);
 
-            buttonAddFile.addEventListener('click', function () {
-                // провекра , есть ли у нас выбранный файл
-                let fileInput = document.getElementById('formFile');
-                if (fileInput.files.length > 0) {
+                        let data = {
+                            category: curSelCategory
+                        }
+                        console.log(data)
 
-                    // отправка картинки серверу
+                        const options = {
+                            method: 'POST', // или 'PUT', 'DELETE', 'GET' и т.д.
+                            headers: {
+                                'Content-Type': 'application/json'
+                                // Здесь вы также можете указать другие заголовки, если это необходимо
+                            },
+                            body: formData // преобразуем объект в JSON-строку
+                        };
 
-                }
-            });
+                        fetch('api_photos_web', options)
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error('Ошибка HTTP: ' + response.status);
+                                }
+                                return response.json();
+                            }).then(data => {
+                            console.log('Успешно отправлено: ', data);
+                        }).catch(error => {
+                            console.error('Ошибка при выполнении запроса', error)
+                        })
+                    }
+                });
+            } else {
+                alert('Нету категорий , добавьте категорию!')
+            }
         });
     });
+
 </script>
 </body>
 </html>

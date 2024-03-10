@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Photo;
-use Dflydev\DotAccessData\Exception\DataException;
-use GuzzleHttp\Exception\RequestException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Mockery\Exception;
@@ -17,10 +16,14 @@ class PhotoController extends Controller
     public function index()
     {
         try {
-            $data = Photo::select('id', 'path','name')->get();
+            $categories = Category::select('name')->get()->map(function ($category) {
+                return $category->name;
+            });
+            $data = Photo::select('id', 'path', 'name')->get();
             return view('index')->with([
                 'component' => 'photo',
-                'photos' => $data
+                'photos' => $data,
+                'categories' => $categories
             ]);
         } catch (ModelNotFoundException $nt) {
             return response()->json(['ErrorMessage' => $nt]);
