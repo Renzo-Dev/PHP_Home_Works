@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Photo;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Mockery\Exception;
 
 class PhotoController extends Controller
@@ -45,8 +47,49 @@ class PhotoController extends Controller
      */
     public function store(Request $request)
     {
-//        return response()->json(['error' => 'не удалось загрузить фото'], 422);
-        return response()->json(['message' => 'Фото успешно загружено'], 200);
+        try {
+            DB::beginTransaction();
+
+            // Проверяем наличие файла изображения
+            if ($request->hasFile('image')) {
+                $image = $request->file('image');
+
+                // Определяем путь к сохраняемому изображению
+                $photoPath = 'storage/images/' . $image->getClientOriginalName();
+                $photoName = $image->getClientOriginalName();
+
+                // Создаем запись о фото в базе данных
+                $photo = Photo::create([
+                    'name' => $photoName,
+                    'path' => $photoPath
+                ]);
+
+                // Получаем ID категории
+                $category = Category::select('id')->where('name', $request->input('category'))->first();
+
+                // Сохраняем связь фото и категории в промежуточной таблице
+                DB::table('categories_photos')->insert([
+                    'category_id'=>$category->id,
+                    'photo_id'=>$photo->id
+                ]);
+
+                // Копируем изображение в публичную директорию
+                $image->storeAs('public/images', $image->getClientOriginalName());
+
+                // Завершаем транзакцию
+                DB::commit();
+
+                return response()->json(['message' => 'Фото успешно загружено'], 200);
+            } else {
+                // В случае отсутствия загруженного файла возвращаем ошибку
+                return response()->json(['error' => 'Не удалось загрузить фото: файл не найден'], 400);
+            }
+        } catch (\Exception $ex) {
+            // В случае возникновения исключения откатываем транзакцию
+            DB::rollBack();
+
+            return response()->json(['error' => 'Не удалось загрузить фото: ошибка сервера'], 500);
+        }
     }
 
     /**

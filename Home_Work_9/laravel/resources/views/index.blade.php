@@ -95,13 +95,10 @@
                             @endforeach
                         @endif
                     </div>
-                    <p>
-                        <input class="file_name form-control" type="text" placeholder="Название файла">
-                    </p>
                     <input class="form-control-file" type="file" accept="image/jpeg, image/png" id="formFile">
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-success" disabled>Добавить</button>
+                    <button type="button" class="btn btn-success"d>Добавить</button>
                 </div>
             </div>
         </div>
@@ -179,11 +176,6 @@
 
                 createPhotoModal.show();
                 const buttonAddFile = document.querySelector('#exampleModal2 .btn-success');
-                const inputFileName = document.querySelector('#exampleModal2 .file_name');
-
-                inputFileName.addEventListener('input', function () {
-                    buttonAddFile.disabled = inputFileName.value.length === 0;
-                });
 
                 buttonAddFile.addEventListener('click', function () {
                     const fileInput = document.getElementById('formFile');
@@ -196,15 +188,10 @@
                         formData.append('image', file); // добавляем файл в FormData
                         formData.append('category', curSelCategory.textContent);
 
-                        let data = {
-                            category: curSelCategory
-                        }
-                        console.log(data)
-
                         const options = {
                             method: 'POST', // или 'PUT', 'DELETE', 'GET' и т.д.
                             headers: {
-                                'Content-Type': 'application/json'
+                                'Action': 'application/json'
                                 // Здесь вы также можете указать другие заголовки, если это необходимо
                             },
                             body: formData // преобразуем объект в JSON-строку

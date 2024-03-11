@@ -8,7 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class Photo extends Model
 {
     use HasFactory;
-    protected $fillable = ['id,path'];
+
+    protected $fillable = ['name', 'path'];
+    protected $table = 'photos';
 
     public function categories()
     {
