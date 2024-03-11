@@ -128,4 +128,7 @@ class PhotoController extends Controller
     {
         //
     }
+
+УДАЛИТЬ ФОТО
+ИЗМЕНИТЬ КАТЕГОРИЮ ФОТО
 }
