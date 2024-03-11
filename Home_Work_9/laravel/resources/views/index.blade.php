@@ -40,8 +40,8 @@
             <div>Нажми на фото</div>
             <div>
                 @foreach($photos as $photo)
-                    <div class="d-flex flex-column">
-                        <img src="{{ asset($photo->path) }}" width="300px" height="150px" alt="{{ $photo->name }}">
+                    <div id="photoWrapper" class="d-flex flex-column">
+                        <img class="photo" src="{{ asset($photo->path) }}" width="300px" height="150px" alt="{{ $photo->name }}">
                     </div>
                 @endforeach
             </div>
@@ -80,7 +80,7 @@
         </div>
     </div>
     <!-- Modal 2-->
-    <div class="modal fade" id="exampleModal2" tabindex="-1" aria-labelledby="exampleModalLabel1" aria-hidden="true">
+    <div class="modal fade" id="exampleModal2" tabindex="-1" aria-labelledby="exampleModalLabel2" aria-hidden="true">
         <div class="modal-dialog modal-custom">
             <div class="modal-content">
                 <div class="modal-header">
@@ -98,19 +98,49 @@
                     <input class="form-control-file" type="file" accept="image/jpeg, image/png" id="formFile">
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-success"d>Добавить</button>
+                    <button type="button" class="btn btn-success">Добавить</button>
                 </div>
             </div>
         </div>
     </div>
+</div>
+<!-- Modal 3-->
+<div class="modal fade" id="exampleModal3" tabindex="-1" aria-labelledby="exampleModalLabel3" aria-hidden="true">
+    <div class="modal-dialog modal-custom">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel3">Изминить категорию фото</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input value="">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" disabled>Изменить</button>
+                <button type="button" class="btn btn-danger">Удалить</button>
+            </div>
+        </div>
+    </div>
+</div>
 </div>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const categories = document.querySelectorAll('.category');
         let currentCategory;
         const createCategoryModal = new bootstrap.Modal(document.querySelector('#exampleModal1'));
+        const createPhotoModal = new bootstrap.Modal(document.querySelector('#exampleModal2'));
+        const createPhotoEditModal = new bootstrap.Modal(document.querySelector('#exampleModal3'));
         const buttonChange = document.querySelector('#exampleModal1 .btn-secondary');
         const inputChangeCategory = document.querySelector('#exampleModal1 .changeCategory');
+        const photos = document.querySelectorAll('#photoWrapper .photo');
+        if(photos.length > 0) {
+            photos.forEach(photo => {
+                photo.addEventListener('click', async function () {
+                    createPhotoEditModal.show();
+                });
+            });
+        }
+
 
         categories.forEach(category => {
             category.addEventListener('click', function () {
@@ -171,8 +201,6 @@
                         curSelCategory = elem;
                     });
                 });
-
-                const createPhotoModal = new bootstrap.Modal(document.querySelector('#exampleModal2'));
 
                 createPhotoModal.show();
                 const buttonAddFile = document.querySelector('#exampleModal2 .btn-success');

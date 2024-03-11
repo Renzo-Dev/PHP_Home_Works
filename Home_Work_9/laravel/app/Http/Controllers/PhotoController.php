@@ -41,7 +41,7 @@ class PhotoController extends Controller
      */
     public function create()
     {
-        return view('index')->with('create','photo');
+        return view('index')->with('create', 'photo');
     }
 
     /**
@@ -128,7 +128,4 @@ class PhotoController extends Controller
     {
         //
     }
-
-УДАЛИТЬ ФОТО
-ИЗМЕНИТЬ КАТЕГОРИЮ ФОТО
 }
