@@ -200,14 +200,20 @@
                         fetch('api_photos_web', options)
                             .then(response => {
                                 if (!response.ok) {
+                                    if(response.status === 400){
+                                        throw new Error('Ошибка загрузки файла: ' + response.status);
+                                    }
                                     throw new Error('Ошибка HTTP: ' + response.status);
                                 }
                                 return response.json();
                             }).then(data => {
-                            console.log('Успешно отправлено: ', data);
+                            alert(data.message);
+                            window.location.replace(window.location);
                         }).catch(error => {
-                            console.error('Ошибка при выполнении запроса', error)
-                        })
+                            console.clear();
+                            console.error(error);
+                            alert("Ошибка файла или файл уже существует")
+                        });
                     }
                 });
             } else {

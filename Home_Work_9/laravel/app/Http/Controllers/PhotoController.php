@@ -28,9 +28,11 @@ class PhotoController extends Controller
                 'categories' => $categories
             ]);
         } catch (ModelNotFoundException $nt) {
-            return response()->json(['ErrorMessage' => $nt]);
+            return response()->json(['ErrorMessage' => $nt], 500);
+        } catch (QueryException $e) {
+            return response()->json(['ErrorMessage' => $e], 500);
         } catch (Exception $ex) {
-            return response()->json('ErrorMessage', $ex);
+            return response()->json(['ErrorMessage', $ex], 500);
         }
     }
 
@@ -53,41 +55,44 @@ class PhotoController extends Controller
             // Проверяем наличие файла изображения
             if ($request->hasFile('image')) {
                 $image = $request->file('image');
+                $exists = Photo::where('name', $image->getClientOriginalName())->exists();
+                if (!$exists) {
+                    // Определяем путь к сохраняемому изображению
+                    $photoPath = 'storage/images/' . $image->getClientOriginalName();
+                    $photoName = $image->getClientOriginalName();
 
-                // Определяем путь к сохраняемому изображению
-                $photoPath = 'storage/images/' . $image->getClientOriginalName();
-                $photoName = $image->getClientOriginalName();
+                    // Создаем запись о фото в базе данных
+                    $photo = Photo::create([
+                        'name' => $photoName,
+                        'path' => $photoPath
+                    ]);
 
-                // Создаем запись о фото в базе данных
-                $photo = Photo::create([
-                    'name' => $photoName,
-                    'path' => $photoPath
-                ]);
+                    // Получаем ID категории
+                    $category = Category::select('id')->where('name', $request->input('category'))->first();
 
-                // Получаем ID категории
-                $category = Category::select('id')->where('name', $request->input('category'))->first();
+                    // Сохраняем связь фото и категории в промежуточной таблице
+                    DB::table('categories_photos')->insert([
+                        'category_id' => $category->id,
+                        'photo_id' => $photo->id
+                    ]);
 
-                // Сохраняем связь фото и категории в промежуточной таблице
-                DB::table('categories_photos')->insert([
-                    'category_id'=>$category->id,
-                    'photo_id'=>$photo->id
-                ]);
+                    // Копируем изображение в публичную директорию
+                    $image->storeAs('public/images', $image->getClientOriginalName());
 
-                // Копируем изображение в публичную директорию
-                $image->storeAs('public/images', $image->getClientOriginalName());
+                    // Завершаем транзакцию
+                    DB::commit();
 
-                // Завершаем транзакцию
-                DB::commit();
-
-                return response()->json(['message' => 'Фото успешно загружено'], 200);
+                    return response()->json(['message' => 'Фото успешно загружен'], 200);
+                } else {
+                    return response()->status(400);
+                }
             } else {
                 // В случае отсутствия загруженного файла возвращаем ошибку
-                return response()->json(['error' => 'Не удалось загрузить фото: файл не найден'], 400);
+                return response()->status(400);
             }
         } catch (\Exception $ex) {
             // В случае возникновения исключения откатываем транзакцию
             DB::rollBack();
-
             return response()->json(['error' => 'Не удалось загрузить фото: ошибка сервера'], 500);
         }
     }
