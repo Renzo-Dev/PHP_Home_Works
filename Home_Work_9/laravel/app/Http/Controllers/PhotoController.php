@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Mockery\Exception;
 
 class PhotoController extends Controller
@@ -100,9 +101,20 @@ class PhotoController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $photoName)
     {
-        //
+        try {
+            // получаем по название фото его ID
+            $photo = Photo::where('name', $photoName)->FirstOrFail();
+            // получаем по ID фото его категорию
+            $category_id = DB::table('categories_photos')->where('photo_id', $photo->id)->value('category_id');
+            // получаем название категории по category_id
+            $categoryName = Category::select('name')->where('id', $category_id)->FirstOrFail();
+
+            return response()->json(['CategoryName' => $categoryName], 200);
+        } catch (\Exception $ex) {
+            return response()->json(['Error' => 'Категорий не найдена'], 404);
+        }
     }
 
     /**
@@ -116,16 +128,45 @@ class PhotoController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, string $photoName)
     {
-        //
+//        DB::beginTransaction();
+        try {
+            $data = $request->json()->all();
+            // получаем ID новой категории
+            $NewCategory = Category::select('id')->where('name', $data['newCategory'])->FirstOrFail();
+            // получаем ID фото , в котором нужно изменить категорию
+            $photo = Photo::select('id')->where('name',$photoName)->FirstOrFail();
+            // изменяем category_id по photo_id
+            DB::table('categories_photos')->where('photo_id',$photo->id)->update(['category_id'=>$NewCategory->id]);
+//            DB::table('categories_photos')->where('photo_id',$photo->id)->update(['category_id'=>$category->id]);
+//            DB::commit();
+
+//            return response()->json(['successUpdate' => 'Успешно обновлено'], 200);
+            return response()->json(['successUpdate' => "Категория успешно изменена"], 200);
+        } catch (\Exception $ex) {
+            // В случае возникновения исключения откатываем транзакцию
+//            DB::rollBack();
+            return response()->json(['error' => 'Не удалось загрузить фото: ошибка сервера'], 500);
+        }
     }
 
-    /**
+        /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(string $photoName)
     {
-        //
+        try {
+            // получаем модель фото из БД
+            $photo = Photo::where('name', $photoName)->FirstOrFail();
+            // удаляем поле из таблицы связей категории и фото
+            // удаляем фото путь к фото из БД
+            $photo->delete();
+            // удаляем фото из хранилища
+            Storage::delete('public/images/' . $photoName);
+            return response()->json(['success' => 'Фото успешно удалено. ID: ' . $photo->id . 'Путь: ' . $photo->path], 200);
+        } catch (\Exception $ex) {
+            return response()->json(['error' => 'Ошибка удаления фото'], 400);
+        }
     }
 }

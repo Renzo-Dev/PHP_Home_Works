@@ -113,11 +113,17 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <input value="">
+                <div class="categ_wrapper_select">
+                    @if((isset($categories) && count($categories) > 0))
+                        @foreach($categories as $category)
+                            <div class="selectCategory">{{ $category }}</div>
+                        @endforeach
+                    @endif
+                </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" disabled>Изменить</button>
-                <button type="button" class="btn btn-danger">Удалить</button>
+                <button type="button" class="changeCatPhoto btn btn-secondary">Изменить</button>
+                <button type="button" class="deletePhoto btn btn-danger">Удалить фото</button>
             </div>
         </div>
     </div>
@@ -125,8 +131,115 @@
 </div>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const categories = document.querySelectorAll('.category');
         let currentCategory;
+        let curSelCategory;
+
+        let bDeletePhoto = document.querySelector('.deletePhoto')
+        let selectCategories = document.querySelectorAll('.selectCategory');
+
+        function editPhotoCategory(photoName) {
+            let editButton = document.querySelector('.changeCatPhoto');
+            editButton.addEventListener('click', function () {
+                let data = {
+                    newCategory: curSelCategory.textContent
+                }
+                let url = `api_photos_web/${photoName}`;
+                const options = {
+                    method: 'PUT', // или 'PUT', 'DELETE', 'GET' и т.д.
+                    headers: {
+                        'Action': 'application/json'
+                    },
+                    body: JSON.stringify(data), // преобразуем объект в JSON-строку
+                };
+
+                fetch(url, options)
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        } else {
+                            throw new Error('Ошибка обноваления категории фото ' + response.status);
+                        }
+                    }).then(responseData => {
+                        setTimeout(function (){
+                            alert(responseData['successUpdate'])
+                            window.location.replace(window.location);
+                        },1000)
+                }).catch(error => {
+                    console.error('Ошибка: ', error)
+                });
+            });
+        }
+
+        function loadImageCategory(photoName) {
+            let url = `api_photos_web/${photoName}`;
+            let options = {
+                method: "GET",
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }
+            fetch(url, options)
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error('Данные не получены ' + response.status);
+                    }
+                }).then(data => {
+                // получаем список категорий
+                selectCategories.forEach(category => {
+                    if (category.textContent === data['CategoryName']['name']) {
+                        if (curSelCategory != null) {
+                            curSelCategory.classList.remove('selectCat');
+                        }
+                        category.classList.add('selectCat');
+                        curSelCategory = category;
+                    }
+                });
+            }).catch(error => {
+                console.error('Ошибка: ', error)
+            });
+        }
+
+        function changeCategorySelect(categories) {
+            categories.forEach(elem => {
+                elem.addEventListener('click', function () {
+                    if (curSelCategory != null) {
+                        curSelCategory.classList.remove('selectCat');
+                    }
+                    elem.classList.add('selectCat');
+                    curSelCategory = elem;
+                });
+            });
+        }
+
+        function deletePhoto(photoName) {
+            bDeletePhoto.addEventListener('click', function () {
+                let url = `api_photos_web/${photoName}`;
+
+                let options = {
+                    method: "DELETE",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }
+                fetch(url, options)
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        } else {
+                            throw new Error('Ошибка удаления данных')
+                        }
+                    }).then(data => {
+                    alert(data['success']);
+                    window.location.replace(window.location);
+                }).catch(error => {
+                    console.error('Ошибка: ', error)
+                });
+            });
+        }
+
+        const categories = document.querySelectorAll('.category');
         const createCategoryModal = new bootstrap.Modal(document.querySelector('#exampleModal1'));
         const createPhotoModal = new bootstrap.Modal(document.querySelector('#exampleModal2'));
         const createPhotoEditModal = new bootstrap.Modal(document.querySelector('#exampleModal3'));
@@ -136,6 +249,10 @@
         if(photos.length > 0) {
             photos.forEach(photo => {
                 photo.addEventListener('click', async function () {
+                    deletePhoto(photo.getAttribute('alt'));
+                    loadImageCategory(photo.getAttribute('alt'));
+                    changeCategorySelect(document.querySelectorAll('.selectCategory'));
+                    editPhotoCategory(photo.getAttribute('alt'));
                     createPhotoEditModal.show();
                 });
             });
@@ -188,19 +305,8 @@
 
         modalCreatePhoto.addEventListener('click', function () {
 
-            // выбираем категорию
-            let selectCategories = document.querySelectorAll('.selectCategory');
             if (selectCategories.length > 0) {
-                let curSelCategory;
-                selectCategories.forEach(elem => {
-                    elem.addEventListener('click', function () {
-                        if (curSelCategory != null) {
-                            curSelCategory.classList.remove('selectCat');
-                        }
-                        elem.classList.add('selectCat');
-                        curSelCategory = elem;
-                    });
-                });
+                changeCategorySelect(selectCategories);
 
                 createPhotoModal.show();
                 const buttonAddFile = document.querySelector('#exampleModal2 .btn-success');
@@ -228,7 +334,7 @@
                         fetch('api_photos_web', options)
                             .then(response => {
                                 if (!response.ok) {
-                                    if(response.status === 400){
+                                    if (response.status === 400) {
                                         throw new Error('Ошибка загрузки файла: ' + response.status);
                                     }
                                     throw new Error('Ошибка HTTP: ' + response.status);
