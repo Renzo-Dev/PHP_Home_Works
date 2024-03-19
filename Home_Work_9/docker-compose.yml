@@ -13,7 +13,7 @@ services:
       - "5432:5432"
   nginx-web:
     build:
-      context: ../Home_Work_8
+      context: ../Home_Work_9
       dockerfile: nginx/Dockerfile
     ports:
       - "8080:80"
@@ -26,7 +26,7 @@ services:
       - my_network
   php-fpm:
     build:
-      context: ../Home_Work_8
+      context: ../Home_Work_9
       dockerfile: php-fpm/Dockerfile
     ports:
       - "7000:7000"
