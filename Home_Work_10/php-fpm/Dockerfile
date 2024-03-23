@@ -58,7 +58,7 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 ## Устанавливаем зависимости Laravel
 #RUN composer install --no-interaction --no-dev --optimize-autoloader
 
-RUN ./artisan key:generate
+RUN #./artisan key:generate
 
 # Открываем порт 9000, который используется PHP-FPM
 EXPOSE 9000
