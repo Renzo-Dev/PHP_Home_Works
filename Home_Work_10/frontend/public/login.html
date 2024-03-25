@@ -8,6 +8,61 @@
     <title>Login</title>
 </head>
 <body>
-<h1>Hello World</h1>
+<div style="display: flex;flex-direction: column;align-items: center" class="main">
+    <h1>Вход в аккаунт</h1>
+    <form id="loginForm" style="display: flex;flex-direction: column">
+        <input style="margin-bottom: 10px;font-size: 17px;padding: 5px" id="input_email" placeholder="Email">
+        <input style="margin-bottom: 10px;font-size: 17px;padding: 5px" id="input_password" autocomplete="off" placeholder="Password">
+        <input type="submit" value="Войти">
+    </form>
+</div>
+<script>
+    window.addEventListener('DOMContentLoaded',()=>{
+        let formSubmit = document.getElementById('loginForm');
+        formSubmit.addEventListener('submit',(e)=>{
+            e.preventDefault();
+            let data = {
+                email: document.getElementById('input_email').value,
+                password: document.getElementById('input_password').value
+            }
+
+            let options = {
+                method: 'POST',
+                headers:{
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            }
+
+            console.log(data)
+
+            fetch('api/auth/login', options)
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error(' ' + response.status);
+                    }
+                }).then(responseData => {
+                const expirationTime = responseData['expires_in'] * 60 * 1000; // 30 дней в миллисекундах
+
+                // Создаем объект Date для вычисления времени истечения куки
+                const expirationDate = new Date(Date.now() + expirationTime);
+
+                // Форматируем дату в строку в формате UTC для установки в качестве значения expires
+                const formattedExpirationDate = expirationDate.toUTCString();
+
+                // Устанавливаем куку с токеном и временем жизни
+                document.cookie = `jwtToken=${responseData['access_token']}; expires=${formattedExpirationDate}; path=/`;
+                console.log(responseData['access_token'])
+                console.log(responseData['expires_in'])
+                console.log(responseData['token_type'])
+            }).catch(error => {
+                console.error('Ошибка: ', error)
+            });
+        });
+    });
+</script>
 </body>
 </html>
