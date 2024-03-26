@@ -45,18 +45,19 @@ RUN chmod 755 /var/run/php/
 
 RUN cd /var/www/html/
 
+# Копируем файлы Laravel в контейнер
+#COPY ../laravel /var/www/html/
+
 # Устанавливаем Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-#RUN composer create-project laravel/laravel:^10.0 .
-#
-## Устанавливаем права на директорию storage и bootstrap
-#RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap
-#RUN chown -R www-data:www-data /var/www/html/storage/
-#RUN chmod -R 775 /var/www/html/storage/
-#
-## Устанавливаем зависимости Laravel
-#RUN composer install --no-interaction --no-dev --optimize-autoloader
+#RUN composer create-project laravel/laravel .
+
+# Устанавливаем права на директорию storage и bootstrap
+RUN #chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap
+
+# Устанавливаем зависимости Laravel
+RUN #composer install --no-interaction --no-dev --optimize-autoloader
 
 RUN #./artisan key:generate
 
