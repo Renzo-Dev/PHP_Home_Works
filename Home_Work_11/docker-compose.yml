@@ -1,0 +1,53 @@
+version: '3'
+services:
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: homeWork
+      POSTGRES_USER: Renzo
+      POSTGRES_PASSWORD: 12345
+    networks:
+      - my_network
+    ports:
+      - "5432:5432"
+  php-fpm:
+    build:
+      context: ../Home_Work_11
+      dockerfile: php-fpm/Dockerfile
+    ports:
+      - "7000:7000"
+    volumes:
+      - ./php-fpm/php-fpm.conf:/usr/local/etc/php-fpm.d/www.conf
+      - ./backend:/var/www/html
+    networks:
+      - my_network
+  nginx-web:
+    build:
+      context: ../Home_Work_11
+      dockerfile: nginx/Dockerfile
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./frontend:/var/www/html
+    depends_on:
+      - php-fpm
+    networks:
+      - my_network
+#volumes:
+#  laravel:
+#    driver: local
+#networks:
+#  my_network:
+#    driver: bridge
+#volumes:
+#  laravel:
+#    driver: local
+#    driver_opts:
+#      type: none
+#      device: ./laravel
+#      o: bind
+networks:
+  my_network:
+    driver: bridge
